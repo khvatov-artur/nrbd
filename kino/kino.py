@@ -6,7 +6,7 @@ import json
 class KinopoiskAPI:  
     def __init__(self, api_key, request_history_file):
         self.api_key = api_key
-        self.request_count = 0  # Счетчик запросов
+        self.request_count = 0
         self.request_history_file = request_history_file
         self.cache = {}  # Кеш для хранения ответов от API
 
@@ -20,12 +20,11 @@ class KinopoiskAPI:
             'Content-Type': 'application/json',
         }
         response = requests.get(url, headers=headers)
-        self.request_count += 1  # Увеличиваем счетчик при каждом запросе
+        self.request_count += 1 
         print(self.request_count)
-        # Сохраняем запрос в файл
         with open(self.request_history_file, 'a') as history_file:
             history_file.write(f"{self.request_count}: {url}\n")
-        # Кешируем ответ для будущего использования
+        # Кешируем ответ
         self.cache[url] = response.json()
         return self.cache[url]
     
@@ -57,9 +56,9 @@ class KinopoiskAPI:
     def get_actor_info_recursive(self, actor_id, depth=2):
         actor_info = self.get_actor_info(actor_id)
         neo4j_handler.create_actor_node(actor_info)
-        # time.sleep(3)  # Добавлено ожидание между запросами
+        # time.sleep(3)  #ожидание между запросами
 
-        # Рекурсивный вызов для обработки фильмов актера
+        # обработка фильмов актера
         if depth > 0 and 'films' in actor_info:
             for film in actor_info['films']:
                 film_id = film['filmId']
@@ -133,11 +132,11 @@ class Neo4jHandler:
 
 
 # Инициализация
-# api_key = '4127c378-fbdb-4b66-a529-0216213f3f88'
-api_key =   "7f523596-9895-438b-ae1e-a1df025cee47"
-neo4j_uri = "neo4j+s://8b2acce1.databases.neo4j.io"
-neo4j_user = "neo4j"
-neo4j_password = "S9lpswz5O41Isk8XFtaOG4V1kRRiow0wOth4sVNsw3A"
+# api_key = 'api_key'
+api_key =   "api_key"
+neo4j_uri = "neo4j_uri"
+neo4j_user = "neo4j_user"
+neo4j_password = "neo4j_password"
 
 history_file = "request_history.txt"
 kinopoisk_api = KinopoiskAPI(api_key, history_file)
@@ -145,12 +144,11 @@ kinopoisk_api = KinopoiskAPI(api_key, history_file)
 neo4j_handler = Neo4jHandler(neo4j_uri, neo4j_user, neo4j_password)
 
 # Запуск
-movie_id = 301  # ID фильма "Матрица"
+movie_id = 301
 
 try:
     kinopoisk_api.run(movie_id)
 except Exception as e:
     print(f"An error occurred: {e}")
 
-# Завершение
 neo4j_handler.close()
